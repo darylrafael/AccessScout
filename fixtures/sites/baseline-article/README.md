@@ -1,36 +1,59 @@
 # Fixture #1: Baseline Article (`baseline-article`)
 
-> Clean, accessible static website baseline for Phase 0 calibration and Phase 1 mutation testing.
+> Static website baseline representing an accessible editorial article layout.
+> Designed to pass axe-core and the planned keyboard checks; this does not certify WCAG, EAA, or ADA compliance.
 
 ---
 
 ## 1. Architectural & Accessibility Design Decisions
 
-- **Pure Semantic HTML5 & CSS:** Zero JavaScript, no external resources, system fonts only (`system-ui`).
-- **Valid Landmark Hierarchy:** Includes `header`, `nav` (`aria-label="Primary Navigation"`), `main` (`tabindex="-1"`), `article`, `aside` (`aria-label="Related Topics"`), and `footer`.
-- **Skip Navigation:** `#skip-link` is the first focusable control, targeting `#main`, revealed on `:focus`.
-- **High-Contrast Palette:**
-  - Body text (`#1a202c` on `#ffffff`): **15.3:1** (exceeds WCAG AAA 7:1).
-  - Links (`#1a56db` on `#ffffff`): **7.5:1** (exceeds WCAG AA 4.5:1).
-  - Focus indicator (`#1e40af` on `#ffffff`): **8.8:1** (exceeds WCAG 2.2 3:1).
-  - Control borders (`#4b5563` on `#ffffff`): **5.7:1** (exceeds WCAG 2.2 3:1).
-- **Responsive Layout:** Fluid layout without fixed widths; zero horizontal scroll at 320 CSS px width.
-- **Target Sizes:** Touch targets meet or exceed $44 \times 44$ CSS px.
+- **Pure Semantic HTML5 & CSS:** Zero JavaScript, no external resources or CDN dependencies, system fonts only (`system-ui`).
+- **Landmark Architecture:**
+  - `<header class="site-header">`
+  - `<nav id="site-nav" aria-label="Primary Navigation">`
+  - `<form id="search-form" role="search">`
+  - `<main id="main" tabindex="-1">`
+  - `<article id="article-content">`
+  - `<aside id="article-sidebar" aria-label="Related Topics">`
+  - `<footer id="site-footer">`
+- **Skip Navigation:** `#skip-link` is the very first focusable element, targeting `#main`, revealed on `:focus`.
+- **Target Sizes:** Interactive controls provide touch/click targets of at least $44 \times 44$ CSS px (inline article links maintain $\ge 24$ CSS px height).
+- **Responsive Layout:** Fluid flexbox/grid layout without fixed element widths; document `scrollWidth` equals viewport width at 320 CSS px (no horizontal scrollbar).
+- **Focus Management:** Active `:focus-visible` ring provides a 3px solid outline with a 2px offset (`#1e40af`).
+- **Deterministic Computed Contrast Ratios (WCAG Relative Luminance Formula):**
+  - Body text (`#1a202c` on `#ffffff`): **16.32:1**
+  - Secondary text (`#4a5568` on `#ffffff`): **7.53:1**
+  - Secondary text (`#4a5568` on `#f8fafc`): **7.19:1**
+  - Primary interactive links (`#1a56db` on `#ffffff`): **6.18:1**
+  - Focus ring & skip link background (`#1e40af` on `#ffffff`): **8.72:1**
+  - Form control borders (`#4b5563` on `#ffffff`): **7.56:1**
+  - Search button icon (`#ffffff` on `#1a56db`): **6.18:1**
 
 ---
 
-## 2. Phase 1 Mutator Target Mappings
+## 2. Phase 1 Mutator Mapping (BLUEPRINT.md §11.2)
 
-| Mutator ID | Description | Target Element ID / Selector | Expected Finding |
+The table below maps all 20 mutators defined in `BLUEPRINT.md` section 11.2 to element IDs/selectors in `baseline-article`, or indicates whether the defect is injected by the mutator or requires subsequent fixtures:
+
+| ID | Injected defect | Expected finding | Mapping / Target in `baseline-article` |
 |---|---|---|---|
-| `M01` | Missing `alt` on informative image | `#article-figure img` | `axe:image-alt` |
-| `M02` | Alt text replaced with filename | `#article-figure img` | `L-001` |
-| `M03` | Disassociate `<label>` from `<input>` | `#search-form label[for="search-input"]` | `axe:label` |
-| `M04` | Icon-only button lacking accessible name | `#search-button` | `axe:button-name` |
-| `M05` | Clickable `div` not focusable | `#site-nav a` replaced with un-focusable `div` | `K-001` |
-| `M06` | Remove CSS focus indicator | `:focus-visible` in `style.css` | `K-003` |
-| `M07` | Introduce focus cycle trap | Focus loop inside `#main` | `K-002` |
-| `M08` | Scramble focus order with positive tabindex | `tabindex="5"` on `#search-input` | `K-005` |
-| `M09` | Fixed sticky header covering focus | `.site-header` set to `position: fixed` | `K-004` |
-| `M10` | Remove skip-navigation link | `#skip-link` removed from DOM | `K-006` |
-| `M19` | Skipped heading level (`h1` -> `h3`) | `#heading-intro` altered to `<h3>` | `axe:heading-order` / `L-003` |
+| M01 | Remove `alt` on informative image | axe image-alt | Targets `#article-figure img` (remove `alt`) |
+| M02 | Alt text replaced with filename | L-001 | Targets `#article-figure img` (replace `alt` with `"figure.svg"`) |
+| M03 | Input label disassociated | axe label | Targets `#search-form label[for="search-input"]` (remove `for` attribute or delete `<label>`) |
+| M04 | Icon-only button without name | axe button-name | Targets `#search-button` (remove `.sr-only` span) |
+| M05 | Clickable `div`, not focusable | K-001 | Injected by mutator (e.g. replace `#site-nav a` or `#search-button` with un-focusable `<div onclick>`) |
+| M06 | `outline: none` on focus, no replacement | K-003 | Targets `:focus-visible` in `style.css` (override with `outline: none`) |
+| M07 | Keyboard trap in a widget | K-002 | Injected by mutator (injected script) or needs fixture #2/#3 |
+| M08 | Positive `tabindex` scramble | K-005 | Injected by mutator (inject `tabindex="5"` on `#search-input` or nav anchors) |
+| M09 | Sticky header covers focused element | K-004 | Injected by mutator (inject `position: fixed` / `sticky` on `.site-header` covering focus target) |
+| M10 | Skip link removed | K-006 | Targets `#skip-link` (remove `#skip-link` element from DOM) |
+| M11 | Dialog opens, focus not moved in | K-007 | Needs fixture #2/#3 (modal/dialog fixture) |
+| M12 | Dialog closes, focus not restored | K-007 | Needs fixture #2/#3 (modal/dialog fixture) |
+| M13 | Error shown by color only; not associated | K-008 | Needs fixture #2/#3 (form fixture with dynamic validation) |
+| M14 | Error not announced (no live region) | K-008 / K-011 | Needs fixture #2/#3 (form fixture with dynamic validation) |
+| M15 | Fixed-width layout → horizontal scroll at 320px | K-009 | Injected by mutator (inject fixed width e.g. `min-width: 960px` on `.page-container`) |
+| M16 | 12px tap targets | K-010 | Injected by mutator (override padding/min-dimensions on `.site-nav a` or `#search-button` to 12px) |
+| M17 | Low contrast text | axe color-contrast | Injected by mutator (inject low-contrast color `#94a3b8` on body text) |
+| M18 | Many "click here" links | L-002 | Injected by mutator (replace link text in `#site-nav` or `#article-content` with "click here") |
+| M19 | Heading levels skipped / no h1 | axe + L-003 | Targets `#article-title` (remove `<h1>`) or `#heading-intro` (promote `<h2>` to `<h4>`) |
+| M20 | Menu opens on hover only | K-001 / flow finding | Needs fixture #2/#3 (flyout dropdown menu fixture) |
