@@ -8,7 +8,7 @@ export interface FixtureServer {
   close: () => Promise<void>;
 }
 
-const MIME_TYPES: Record<string, string> = {
+export const MIME_TYPES: Readonly<Record<string, string>> = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml',

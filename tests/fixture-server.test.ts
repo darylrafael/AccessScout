@@ -1,5 +1,6 @@
+import http from 'node:http';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { startFixtureServer, type FixtureServer } from './helpers/fixture-server.js';
+import { startFixtureServer, MIME_TYPES, type FixtureServer } from './helpers/fixture-server.js';
 
 describe('Fixture HTTP Server (baseline-article)', () => {
   let server: FixtureServer;
@@ -23,6 +24,15 @@ describe('Fixture HTTP Server (baseline-article)', () => {
     expect(text).toContain('Accessible Web Architecture');
   });
 
+  it('properly handles HEAD requests with identical headers and empty body', async () => {
+    const res = await fetch(server.url, { method: 'HEAD' });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/html');
+    expect(res.headers.get('cache-control')).toBe('no-store');
+    const body = await res.text();
+    expect(body).toBe('');
+  });
+
   it('serves /style.css with 200 and text/css', async () => {
     const res = await fetch(new URL('style.css', server.url));
     expect(res.status).toBe(200);
@@ -39,27 +49,60 @@ describe('Fixture HTTP Server (baseline-article)', () => {
     expect(res.headers.get('cache-control')).toBe('no-store');
   });
 
+  it('defines correct Content-Type for all required MIME types', () => {
+    expect(MIME_TYPES['.html']).toBe('text/html; charset=utf-8');
+    expect(MIME_TYPES['.css']).toBe('text/css; charset=utf-8');
+    expect(MIME_TYPES['.svg']).toBe('image/svg+xml');
+    expect(MIME_TYPES['.js']).toBe('text/javascript; charset=utf-8');
+    expect(MIME_TYPES['.json']).toBe('application/json; charset=utf-8');
+    expect(MIME_TYPES['.png']).toBe('image/png');
+  });
+
   it('returns 404 for non-existent resources', async () => {
     const res = await fetch(new URL('does-not-exist', server.url));
     expect(res.status).toBe(404);
   });
 
-  it('prevents path traversal attempts (plain and encoded %2e%2e)', async () => {
-    // Plain traversal
+  it('prevents path traversal attempts (plain, encoded %2e%2e, and backslashes)', async () => {
+    // Plain traversal via relative path
     const resPlain = await fetch(new URL('../package.json', server.url));
     expect([403, 404]).toContain(resPlain.status);
 
-    // Encoded dot-dot traversal (%2e%2e)
-    const resEncoded = await fetch(new URL('%2e%2e/package.json', server.url));
-    expect([403, 404]).toContain(resEncoded.status);
+    // Encoded dot-dot traversal (%2e%2e) reaching server
+    const resEncodedDot = await fetch(`${server.url}%2e%2e/package.json`);
+    expect([403, 404]).toContain(resEncodedDot.status);
 
-    // Deep traversal
-    const resDeep = await fetch(new URL('%2e%2e/%2e%2e/%2e%2e/package.json', server.url));
-    expect([403, 404]).toContain(resDeep.status);
+    // Encoded forward slash traversal reaching server
+    const resEncodedSlash = await fetch(`${server.url}..%2fpackage.json`);
+    expect([403, 404]).toContain(resEncodedSlash.status);
+
+    // Deep subpath traversal attempting to escape fixtureRoot
+    const resSubpath = await fetch(`${server.url}images/%2e%2e%2f%2e%2e%2fpackage.json`);
+    expect([403, 404]).toContain(resSubpath.status);
+
+    // Windows backslash traversal (%5c)
+    const resBackslash = await fetch(`${server.url}images/%2e%2e%5c%2e%2e%5cpackage.json`);
+    expect([403, 404]).toContain(resBackslash.status);
 
     // Traversal with null byte
     const resNull = await fetch(`${server.url}%2e%2e%00/package.json`);
     expect([400, 403, 404]).toContain(resNull.status);
+  });
+
+  it('rejects malformed URI encodings with 400 Bad Request', async () => {
+    const port = Number(new URL(server.url).port);
+    const res = await new Promise<{ statusCode: number | undefined }>((resolve, reject) => {
+      const req = http.request(
+        { host: '127.0.0.1', port, path: '/%invalid-encoding', method: 'GET' },
+        (r) => {
+          r.resume();
+          r.on('end', () => resolve({ statusCode: r.statusCode }));
+        },
+      );
+      req.on('error', reject);
+      req.end();
+    });
+    expect(res.statusCode).toBe(400);
   });
 
   it('rejects POST and other non-GET/HEAD methods with 405 Method Not Allowed', async () => {
