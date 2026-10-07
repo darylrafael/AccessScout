@@ -151,7 +151,7 @@ Pin exact versions at bootstrap by checking current stable releases. Do not rely
 - Browser automation: Playwright (Chromium first; Firefox/WebKit later).
 - Rules engine: `@axe-core/playwright` (`AxeBuilder`).
 - Validation: Zod at every boundary (config, LLM output, callbacks, DB inserts).
-- Tests: Vitest (unit), Playwright Test (integration against fixtures).
+- Tests: Vitest for ALL tests. Browser tests use the plain `playwright` library inside Vitest. No `@playwright/test` and no second runner.
 - Web: Next.js (App Router), Auth.js with GitHub OAuth, Tailwind. Drizzle ORM + Postgres.
 - DB/storage (free tier): Neon or Supabase Postgres; Supabase Storage or Cloudflare R2 for screenshots behind a storage adapter.
 - LLM: adapters for Gemini (free Flash tier), Groq, OpenRouter, Ollama (local dev).

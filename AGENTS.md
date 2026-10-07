@@ -102,3 +102,5 @@ Before opening or approving any PR:
 2. **Strict Dependency Addition:** Install only the dependencies that the current active step explicitly lists.
 3. **No Destructive Git Commands:** Never execute destructive git commands (`git reset --hard`, force push, history rewrite) without explicit owner approval.
 4. **Evidence Before Assertions:** Always show raw command output and verification evidence before claiming any task is done.
+5. **No Remote Operations:** Never push, add remotes, or open PRs without explicit approval.
+6. **No Unrequested Network Calls:** Other than package installs and official documentation lookups needed by the current step, do not call external APIs. Report any tool use outside the current step.
