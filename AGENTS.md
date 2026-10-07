@@ -41,11 +41,11 @@ We do not blindly generate code. Before implementing any significant technical s
 - **Browser Automation:** Playwright (Chromium only for v0.1).
 - **Rule Engine:** `@axe-core/playwright`.
 - **Validation:** Zod schemas for all runtime boundaries (configs, reports, API payloads, LLM responses).
-- **Testing:** Vitest for unit tests; Playwright Test for fixture-based integration tests.
+- **Testing:** Vitest for ALL tests. Browser tests use the plain `playwright` library inside Vitest. Do not add @playwright/test or a second runner.
 
 ### Package Boundaries & Dependency Flow
 - Dependencies MUST form a Directed Acyclic Graph (DAG). Circular dependencies are strictly forbidden.
-- `schema` must remain pure (Zod and type definitions only, zero runtime dependencies).
+- `schema` must remain pure (depends only on Zod and type definitions).
 - `core` and `checks` MUST NOT depend on `llm`. Deterministic analysis must execute cleanly without AI dependencies.
 - Every check must implement the unified `Check` interface and emit replayable steps.
 
@@ -53,7 +53,7 @@ We do not blindly generate code. Before implementing any significant technical s
 
 ## 4. Security & Safety Rules
 
-1. **Zero Provider Secrets in the Browser Sandbox:** The runner and browser automation processes must NEVER receive third-party LLM API keys (e.g., Gemini, OpenAI, Groq). All LLM requests must traverse the Web API LLM Gateway using short-lived, scan-scoped tokens.
+1. **Zero Provider Secrets in Hosted Runners:** Hosted and web runner automation processes must NEVER receive third-party LLM API keys (e.g., Gemini, OpenAI, Groq). All LLM requests must traverse the Web API LLM Gateway using short-lived, scan-scoped tokens. In local CLI mode a user may supply their own provider key; page content must never be able to read it, and keys must never appear in reports or logs.
 2. **Untrusted Content Containment:** All scanned web pages are considered hostile.
    - Text extracted from pages must be wrapped in strict delimiters when passed to LLMs.
    - LLM outputs must be parsed through Zod schemas. LLM outputs must NEVER be passed directly to `eval()`, shell commands, or arbitrary CSS selectors.
@@ -77,7 +77,7 @@ A task or section is marked `DONE` if and only if:
 - [ ] Relevant unit and integration tests exist and pass (`pnpm test`).
 - [ ] Strict type checking passes (`pnpm typecheck`).
 - [ ] Linter and formatter pass (`pnpm lint`).
-- [ ] Benchmark smoke evaluation passes (`pnpm eval:smoke`).
+- [ ] From Phase 1 onward, once the harness exists: `pnpm eval:smoke` passes.
 - [ ] Feature has been demonstrated with command output or execution evidence.
 - [ ] Known limitations are documented.
 - [ ] Architectural decisions are recorded in `docs/adr/` if non-trivial.
@@ -93,3 +93,12 @@ Before opening or approving any PR:
 4. New dependencies are strictly evaluated for maintenance, license, and bundle size.
 5. All Playwright and axe-core API usages are verified against current official documentation (e.g., `page.ariaSnapshot()`).
 6. All user-facing reports include the mandatory disclaimer: *"Automated findings only. This tool does not certify WCAG, EAA, or ADA compliance."*
+
+---
+
+## 7. Workflow Boundaries
+
+1. **One Step per Turn:** Execute exactly one step per turn; never start the next step or phase without explicit approval.
+2. **Strict Dependency Addition:** Install only the dependencies that the current active step explicitly lists.
+3. **No Destructive Git Commands:** Never execute destructive git commands (`git reset --hard`, force push, history rewrite) without explicit owner approval.
+4. **Evidence Before Assertions:** Always show raw command output and verification evidence before claiming any task is done.

@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-07
-- **Author:** Lead Software Engineer & Technical Architect
+- **Author:** Project owner
 - **Context:** AccessScout
 
 ---
@@ -57,7 +57,7 @@ We need an architectural model that ensures high testability, zero runtime lock-
 
 ### Positive Consequences
 - **Maximum Portability:** The engine can run on local developer machines, GitHub Actions runners, Docker containers, or cloud compute instances without modification.
-- **Superior Testability:** Unit tests, integration tests against fixture sites, and benchmark mutator runs execute directly against the engine library in milliseconds without spinning up web servers or database migrations.
+- **Superior Testability:** Unit tests, integration tests against fixture sites, and benchmark mutator runs execute directly against the engine library in seconds without spinning up web servers or database migrations.
 - **Clean Dependency Graph:** Prevents accidental leakage of web-specific dependencies (Next.js, React, Auth.js) into the core scanning logic.
 - **Early Release Milestone:** Enables shipping **Release A (CLI + Benchmark)** early to demonstrate working functionality and open-source credibility before building the Web MVP.
 
