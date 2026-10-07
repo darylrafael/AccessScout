@@ -1,0 +1,11 @@
+# ==============================================================================
+# AccessScout — Repository Code Owners
+# ==============================================================================
+
+# Default owner for everything in the repository
+* @darylrafael
+
+# Critical ground-truth evaluation datasets
+# Any modifications to expected findings require explicit owner approval
+fixtures/expected/** @darylrafael
+fixtures/judgments/** @darylrafael
