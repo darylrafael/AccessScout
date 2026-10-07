@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Accessible Web Architecture — AccessScout Baseline Article</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <a id="skip-link" href="#main" class="skip-link">Skip to main content</a>
+
+    <div class="page-container">
+      <header class="site-header">
+        <div class="header-brand">
+          <img src="images/figure.svg" alt="" width="32" height="32" class="site-logo">
+          <span class="site-title">AccessScout Journal</span>
+        </div>
+
+        <nav id="site-nav" class="site-nav" aria-label="Primary Navigation">
+          <ul>
+            <li><a href="#heading-intro">Introduction</a></li>
+            <li><a href="#heading-concepts">Core Concepts</a></li>
+            <li><a href="#heading-focus">Focus Management</a></li>
+            <li><a href="#heading-sidebar">Related Topics</a></li>
+          </ul>
+        </nav>
+
+        <form id="search-form" class="search-form" role="search" action="#search-form">
+          <label for="search-input" class="search-label">Search articles</label>
+          <input
+            id="search-input"
+            class="search-input"
+            type="search"
+            name="q"
+            placeholder="Search articles..."
+            autocomplete="off"
+          >
+          <button id="search-button" type="submit" class="search-button">
+            <span class="sr-only">Submit Search</span>
+            <svg
+              aria-hidden="true"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </form>
+      </header>
+
+      <main id="main" tabindex="-1">
+        <div class="content-grid">
+          <article id="article-content">
+            <h1 id="article-title">Accessible Web Architecture for Keyboard Interaction</h1>
+            <p>
+              Accessible design ensures web applications remain fully navigable without pointing devices.
+              By establishing predictable focus order, keyboard users can inspect and interact efficiently.
+            </p>
+
+            <section aria-labelledby="heading-intro">
+              <h2 id="heading-intro">Introduction to Keyboard Traversal</h2>
+              <p>
+                A core principle of accessibility is programmatic reachability. Interactive controls must
+                respond to sequential Tab key navigation in an order that aligns with visual layout.
+              </p>
+            </section>
+
+            <section aria-labelledby="heading-concepts">
+              <h2 id="heading-concepts">Core Concepts in DOM Landmarks</h2>
+              <p>
+                Landmarks allow assistive technologies to jump directly between major sections of a page.
+                Clear landmarks reduce cognitive load and simplify complex page navigation.
+              </p>
+
+              <figure id="article-figure">
+                <img
+                  src="images/figure.svg"
+                  alt="Bar chart showing fictional test metrics across four development stages"
+                  width="400"
+                  height="200"
+                >
+                <figcaption id="figure-caption">Fictional benchmark metric progression across stages</figcaption>
+              </figure>
+
+              <h3 id="heading-focus">Focus Management and Indicators</h3>
+              <p>
+                Focus indicators provide visual confirmation of the currently active control.
+                Removing visible focus styles creates navigation barriers for keyboard users.
+              </p>
+              <p>
+                Review our foundational documentation at the
+                <a href="#article-title">top of this article</a>.
+              </p>
+            </section>
+          </article>
+
+          <aside id="article-sidebar" class="article-sidebar" aria-label="Related Topics">
+            <h2 id="heading-sidebar">Related Topics</h2>
+            <ul>
+              <li><a href="#heading-intro">Keyboard Traversal Guide</a></li>
+              <li><a href="#heading-concepts">DOM Landmark Hierarchy</a></li>
+              <li><a href="#heading-focus">Visible Focus Criteria</a></li>
+            </ul>
+          </aside>
+        </div>
+      </main>
+
+      <footer id="site-footer" class="site-footer">
+        <p>&copy; 2026 AccessScout Baseline Article. Designed for deterministic accessibility benchmarking.</p>
+      </footer>
+    </div>
+  </body>
+</html>
