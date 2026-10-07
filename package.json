@@ -2,6 +2,7 @@
   "name": "accessscout",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@11.28.5",
   "engines": {
@@ -12,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "26.6.4",
-    "typescript": "7.0.2"
+    "@types/node": "24.19.1",
+    "typescript": "6.0.3"
   }
 }
